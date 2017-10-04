@@ -32,33 +32,33 @@ class ApiController < ApplicationController
   end
 
   def meme_machine
-    # event = params[:event]
-    # if event[:text] && event[:text].downcase.include?("meme machine")
-    #   @response_text = "https://www.youtube.com/watch?v=wl-LeTFM8zo"
-    #   @attachments = [
-    #     {
-    #       "service_name": "YouTube",
-    #       "service_url": "https://www.youtube.com/",
-    #       "title": "PINK GUY - MEME MACHINE",
-    #       "title_link": "https://www.youtube.com/watch?v=wl-LeTFM8zo",
-    #       "author_name": "TooDamnFilthy",
-    #       "author_link": "https://www.youtube.com/user/TooDamnFilthy",
-    #       "thumb_url": "https://i.ytimg.com/vi/wl-LeTFM8zo/hqdefault.jpg",
-    #       "thumb_width": 480,
-    #       "thumb_height": 360,
-    #       "fallback": "YouTube Video: PINK GUY - MEME MACHINE",
-    #       "video_html": "<iframe width=\"400\" height=\"225\" src=\"https://www.youtube.com/embed/wl-LeTFM8zo?feature=oembed&autoplay=1&iv_load_policy=3\" frameborder=\"0\" allowfullscreen></iframe>",
-    #       "video_html_width": 400,
-    #       "video_html_height": 225,
-    #       "from_url": "https://www.youtube.com/watch?v=wl-LeTFM8zo",
-    #       "service_icon": "https://a.slack-edge.com/2089/img/unfurl_icons/youtube.png",
-    #       "id": 2
-    #     }
-    #   ]
-    #   p Slack::Messenger.send_message(@response_text, event[:channel], @attachments)
-    #   return
-    # end
-    render json: params[:challenge], status: 200
+    event = params[:event]
+    if event[:text] && event[:text].downcase.include?("meme machine")
+      @response_text = "https://www.youtube.com/watch?v=wl-LeTFM8zo"
+      @attachments = [
+        {
+          "service_name": "YouTube",
+          "service_url": "https://www.youtube.com/",
+          "title": "PINK GUY - MEME MACHINE",
+          "title_link": "https://www.youtube.com/watch?v=wl-LeTFM8zo",
+          "author_name": "TooDamnFilthy",
+          "author_link": "https://www.youtube.com/user/TooDamnFilthy",
+          "thumb_url": "https://i.ytimg.com/vi/wl-LeTFM8zo/hqdefault.jpg",
+          "thumb_width": 480,
+          "thumb_height": 360,
+          "fallback": "YouTube Video: PINK GUY - MEME MACHINE",
+          "video_html": "<iframe width=\"400\" height=\"225\" src=\"https://www.youtube.com/embed/wl-LeTFM8zo?feature=oembed&autoplay=1&iv_load_policy=3\" frameborder=\"0\" allowfullscreen></iframe>",
+          "video_html_width": 400,
+          "video_html_height": 225,
+          "from_url": "https://www.youtube.com/watch?v=wl-LeTFM8zo",
+          "service_icon": "https://a.slack-edge.com/2089/img/unfurl_icons/youtube.png",
+          "id": 2
+        }
+      ]
+      p Slack::Messenger.send_message(@response_text, event[:channel], @attachments)
+      return
+    end
+    # render json: params[:challenge], status: 200
   end
 
   private
