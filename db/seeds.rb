@@ -31,6 +31,7 @@ Command.create([
   usage: "/tp card entity_id",
   aliases: "/tp reference, /tp ref",
   },
+  {
   name: "showme",
   description: "Displays TargetProcess Card Data",
   usage: "/tp showme entity_id",
