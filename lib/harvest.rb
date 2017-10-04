@@ -19,6 +19,7 @@ module Harvest
           p "You didn't specify a request type"
         end
         req["Harvest-Account-ID"] = "269601"
+        req["Authorization"] = ENV["harvest_auth_token"]
         req["Content-Type"] = "application/json"
         req['Accept'] = "application/json"
         res = Net::HTTP.start(url.hostname, url.port, :use_ssl => url.scheme == 'https') { |http| http.request(req) }

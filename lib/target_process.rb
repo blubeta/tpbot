@@ -51,7 +51,7 @@ module TargetProcess
       end
 
       def export_time(user, assignable, hours, description)
-        url = URI("https://blubeta.tpondemand.com/api/v1/times?") #TODO readd token
+        url = URI("https://blubeta.tpondemand.com/api/v1/times?#{ENV["tp_auth_token"]}")
         payload = create_time_payload assignable, hours, user, description
         request_from_tp url, "post", payload
       end
@@ -67,7 +67,7 @@ module TargetProcess
         else
           p "You didn't specify a request type"
         end
-        req.basic_auth
+        req.basic_auth ENV["tp_auth_user"], ENV["tp_auth_pass"]
         req["Content-Type"] = "application/json"
         req['Accept'] = "application/json"
         res = Net::HTTP.start(url.hostname, url.port, :use_ssl => url.scheme == 'https') { |http| http.request(req) }
