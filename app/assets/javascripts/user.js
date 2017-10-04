@@ -2,7 +2,7 @@
 // All this logic will automatically be available in application.js.
 // You can use CoffeeScript in this file: http://coffeescript.org/
 
-window.onload = () => {
+window.onload = function (){
   container = document.getElementById("container")
 
   div = document.createElement("div")
