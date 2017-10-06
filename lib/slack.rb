@@ -17,9 +17,9 @@ module Slack
     private
 
       def _generate_message_uri message, channel, attachments
-        p URI(
+        URI(
         "https://slack.com/api/chat.postMessage?"+
-        "token=#{ENV["slack_auth_token"]}"+
+        "token=#{ENV["slack_auth_token"]}&"+
         "channel=#{channel}&"+
         "text=#{message}&"+
         "attachments=#{attachments.to_json}")
