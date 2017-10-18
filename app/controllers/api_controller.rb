@@ -293,7 +293,7 @@ class ApiController < ApplicationController
         if running_timer
           hours = (((Time.now - running_timer.created_at)/3600) - running_timer.paused_time).round(2)
           hours = hours < 0.17 ? 0.17 : hours
-          @response_text = "Time tracked: #{hours} hours"
+          @response_text = "Time tracked: #{hours} hours for <https://blubeta.tpondemand.com/entity/#{running_timer.tp_card_id}|#{running_timer.tp_card_id}>"
           running_timer.update(running: false, hours: hours)
           _export_time(@harvest_user_ids[extra_args[-1]], @tp_user_ids[extra_args[-1]], hours, running_timer.tp_card_id, message)
         else
