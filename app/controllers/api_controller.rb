@@ -212,7 +212,7 @@ class ApiController < ApplicationController
         fields: [
           {
             title: "Status",
-            value: res["EntityState"]["Name"]
+            value: res["EntityState"]["Name"] + " ##{id}"
           },
           {
             title: "Time Spent",
