@@ -206,13 +206,13 @@ class ApiController < ApplicationController
       }
       @attachments << {
         author_name: res["Owner"]["FirstName"] + " " + res["Owner"]["LastName"],
-        title: "#{res['Name']}",
+        title: "#{res['Name']} %23#{id}",
         color: "#{colors[name]}",
         title_link: "https://blubeta.tpondemand.com/entity/#{entity}",
         fields: [
           {
             title: "Status",
-            value: res["EntityState"]["Name"] + " ##{id}"
+            value: res["EntityState"]["Name"]
           },
           {
             title: "Time Spent",
