@@ -415,8 +415,8 @@ class ApiController < ApplicationController
       res = TargetProcess::Handler.get_card("generals", tp_card_id)
       description = description || res["Name"]
       harvest_project = @harvest_project_ids[res["Project"]["Name"]]
-      Harvest::Handler.export_time(harvest_user, harvest_project, description, hours, @harvest_task_id)
-      TargetProcess::Handler.export_time(tp_user, tp_card_id, hours, description)
+      p Harvest::Handler.export_time(harvest_user, harvest_project, description, hours, @harvest_task_id)
+      p TargetProcess::Handler.export_time(tp_user, tp_card_id, hours, description)
     else
       @response_text = "Cannot track time that is less than 0.01 hours :sad_meme:"
       @attachments << {title: "Note:", text: "Regardless the timer that you started was stopped :pepe:"}
