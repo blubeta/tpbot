@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171003094928) do
+ActiveRecord::Schema.define(version: 20171028053827) do
 
   create_table "commands", force: :cascade do |t|
     t.string   "name"
@@ -31,6 +31,7 @@ ActiveRecord::Schema.define(version: 20171003094928) do
     t.datetime "updated_at",                                              null: false
     t.boolean  "paused",                                  default: false
     t.decimal  "paused_time",     precision: 4, scale: 2, default: "0.0"
+    t.string   "slack_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -40,6 +41,7 @@ ActiveRecord::Schema.define(version: 20171003094928) do
     t.integer  "harvest_user_id", null: false
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
+    t.string   "tp_auth_token"
   end
 
 end

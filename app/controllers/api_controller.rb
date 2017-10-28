@@ -4,9 +4,10 @@ class ApiController < ApplicationController
   def tp
     text = params[:text]
     user_name = params[:user_name]
+    slack_user_id = params[:user_id]
     command = text.split(' ')
     init
-    delegate_commands command, user_name
+    delegate_commands command, user_name, slack_user_id
     if @private_message
       render json: Slack::Messenger.send_private_message(@response_text, @attachments), status: 200
     else
@@ -66,7 +67,7 @@ class ApiController < ApplicationController
   def init
     @commands = Command.pluck(:name)
     @aliases, @description, @usage = {}, {}, {}
-    @tp_user_ids, @harvest_user_ids = {}, {}
+    @tp_user_ids, @harvest_user_ids, @tp_auth_tokens = {}, {}, {}
 
     Command.all.each do |command|
       @usage[command.name] = command.usage
@@ -76,6 +77,7 @@ class ApiController < ApplicationController
 
     User.all.each do |user|
       @tp_user_ids[user.first_name] = user.tp_user_id.to_s
+      @tp_auth_tokens[user.first_name] = user.tp_auth_token
       @harvest_user_ids[user.first_name] = user.harvest_user_id.to_s
     end
 
@@ -100,17 +102,16 @@ class ApiController < ApplicationController
     @private_message = false
   end
 
-  def delegate_commands command, user_name = ""
-    user_specific_commands = ["timer", "tasks"]
+  def delegate_commands command, user_name = "", user_id = ""
     params = command.length > 1 ? command.drop(1) : []
-    if user_specific_commands.include? command[0].downcase
+      params << user_id
       params << user_name
-    end
     if !command[0]
       method("help").call()
       return
     end
     if @commands.include? command[0].downcase
+      if @tp_auth_tokens[user_name] != nil
       begin
         method(command[0].downcase).call(*params)
       rescue => e
@@ -118,12 +119,15 @@ class ApiController < ApplicationController
         @response_text = "Command '#{command.join("_")}' broke :sad_meme:"
       end
     else
+      @response_text = "You need to generate an auth token to use the timer :sad_meme:"
+    end
+    else
       @response_text = "Command '#{command[0]}' is invalid :sad_meme:"
     end
   end
 
   def reference(entity_id=false, *extra_args)
-    res = TargetProcess::Handler.get_card("generals", entity_id)
+    res = TargetProcess::Handler.get_card("generals", entity_id, @tp_auth_tokens[extra_args[-1]])
     if res["Status"] != "NotFound"
       if entity_id
         if entity_id.to_i.to_s == entity_id
@@ -185,9 +189,9 @@ class ApiController < ApplicationController
     begin
       type = entity.to_i.to_s != entity ? entity.pluralize : 'generals'
       id = entity_id == '' ? entity : entity_id
-      res = TargetProcess::Handler.get_card(type, id)
+      res = TargetProcess::Handler.get_card(type, id, @tp_auth_tokens[extra_args[-1]])
       name = res["EntityType"]["Name"]
-      res = type == "generals" ? TargetProcess::Handler.get_card(name.pluralize, id) : nil
+      res = type == "generals" ? TargetProcess::Handler.get_card(name.pluralize, id, @tp_auth_tokens[extra_args[-1]]) : nil
       number = res["Id"].to_s
       response_text = name + " " + number
       colors = {
@@ -236,14 +240,14 @@ class ApiController < ApplicationController
       user = userSpecified ? extra_args[userSpecified + 1] : 'no user'
       time = dateSpecified ? extra_args[dateSpecified + 1] : '1970-01-01'
       if (userSpecified && user[/[a-zA-Z]+/] == user && user != "")
-        hours = TargetProcess::Handler.get_hours(user, time)
+        hours = TargetProcess::Handler.get_hours(user, time, @tp_auth_tokens[extra_args[-1]])
         @response_text = "Time for #{user.humanize} since #{time == '1970-01-01' ? "the beginning of time" : time}:"
         @attachments << {
           title: "#{user.humanize} has worked a total of: #{hours} hours",
           color: "%2300ff00",
         }
       else
-        hours = TargetProcess::Handler.get_all_hours(time)
+        hours = TargetProcess::Handler.get_all_hours(time, @tp_auth_tokens[extra_args[-1]])
         @response_text = "Times for each user since #{time}"
         hours.each do |user_name, user_hours|
           user_hours = "%.2f".% user_hours
@@ -267,7 +271,7 @@ class ApiController < ApplicationController
       running_timer = Timer.find_by(tp_user_id: @tp_user_ids[extra_args[-1]], harvest_user_id: @harvest_user_ids[extra_args[-1]], running: true, paused: false)
       if extra_args[0].downcase == "start"
         if card != "no card" && card != ""
-          res = TargetProcess::Handler.get_card("generals", card)
+          res = TargetProcess::Handler.get_card("generals", card, @tp_auth_tokens[extra_args[-1]])
           if res["Status"] == "NotFound"
             @response_text = "Id: #{card} is not a card on TargetProcess :sad_meme:"
             return
@@ -278,7 +282,7 @@ class ApiController < ApplicationController
           if running_timer
             running_timer.update(paused: true)
           end
-          timer = Timer.find_or_create_by(tp_user_id: @tp_user_ids[extra_args[-1]], harvest_user_id: @harvest_user_ids[extra_args[-1]], tp_card_id: card, running: true)
+          timer = Timer.find_or_create_by(tp_user_id: @tp_user_ids[extra_args[-1]], harvest_user_id: @harvest_user_ids[extra_args[-1]], slack_user_id: extra_args[-2], tp_card_id: card, running: true)
           @response_text = "Timer Started"
           if timer.paused
             paused_time = timer.paused_time += ((Time.now - timer.updated_at)/3600).round(2)
@@ -295,9 +299,9 @@ class ApiController < ApplicationController
           hours = hours < 0.17 ? 0.17 : hours
           @response_text = "Time tracked: #{hours} hours for <https://blubeta.tpondemand.com/entity/#{running_timer.tp_card_id}|#{running_timer.tp_card_id}>"
           running_timer.update(running: false, hours: hours)
-          _export_time(@harvest_user_ids[extra_args[-1]], @tp_user_ids[extra_args[-1]], hours, running_timer.tp_card_id, message)
+          _export_time(@harvest_user_ids[extra_args[-1]], @tp_user_ids[extra_args[-1]], @tp_auth_tokens[extra_args[-1]], hours, running_timer.tp_card_id, message)
         else
-          @response_text = "You have to star or resume a timer before you can stop one :pepe:"
+          @response_text = "You have to start or resume a timer before you can stop one :pepe:"
           @attachments << {title: "/tp timer list", text: "gives you a list of all running timers"}
         end
       elsif extra_args[0].downcase == "list"
@@ -306,7 +310,7 @@ class ApiController < ApplicationController
         @attachments = timers.map { |timer|
           hours = (((Time.now - timer.created_at)/3600) - timer.paused_time).round(2)
             {
-              title: timer.tp_card_id.to_s + " " + TargetProcess::Handler.get_card("generals", timer.tp_card_id)["Name"],
+              title: timer.tp_card_id.to_s + " " + TargetProcess::Handler.get_card("generals", timer.tp_card_id, @tp_auth_tokens[extra_args[-1]])["Name"],
               title_link: "https://blubeta.tpondemand.com/entity/#{timer.tp_card_id}",
               text: timer.paused ? "Timer Paused" : hours > 0.17 ? hours : hours.to_s + " rounded to 0.17"
             }
@@ -351,7 +355,7 @@ class ApiController < ApplicationController
   def tasks(*extra_args)
     if extra_args[0].to_i.to_s == extra_args[0]
     actions = {"Start Timer" => "timer_start_#{extra_args[0]}"}
-    card = TargetProcess::Handler.get_card("Generals", extra_args[0])
+    card = TargetProcess::Handler.get_card("Generals", extra_args[0], @tp_auth_tokens[extra_args[-1]])
     @response_text = card["Name"]
     @attachments << {
       title: "Pick an action any action",
@@ -375,11 +379,11 @@ class ApiController < ApplicationController
         }
       ]
     }
-    elsif extra_args.length > 1
+  elsif extra_args.length > 2
       username = extra_args.pop
       delegate_commands(extra_args, username)
     else
-    cards = TargetProcess::Handler.get_user_cards(@tp_user_ids[extra_args[-1]])
+    cards = TargetProcess::Handler.get_user_cards(@tp_user_ids[extra_args[-1]], @tp_auth_tokens[extra_args[-1]])
       @response_text = "Here's your TargetProcess Cards"
       @attachments << {
         title: "Pick a card any card",
@@ -410,13 +414,13 @@ class ApiController < ApplicationController
     @response_text = "pong! :pepe:"
   end
 
-  def _export_time(harvest_user, tp_user, hours, tp_card_id, description)
+  def _export_time(harvest_user, tp_user, tp_auth_token, hours, tp_card_id, description)
     if hours > 0.0
-      res = TargetProcess::Handler.get_card("generals", tp_card_id)
+      res = TargetProcess::Handler.get_card("generals", tp_card_id, tp_auth_token)
       description = description || res["Name"]
       harvest_project = @harvest_project_ids[res["Project"]["Name"]]
-      p Harvest::Handler.export_time(harvest_user, harvest_project, description, hours, @harvest_task_id)
-      p TargetProcess::Handler.export_time(tp_user, tp_card_id, hours, description)
+      # Harvest::Handler.export_time(harvest_user, harvest_project, description, hours, @harvest_task_id)
+      TargetProcess::Handler.export_time(tp_user, tp_card_id, tp_auth_token, hours, description)
     else
       @response_text = "Cannot track time that is less than 0.01 hours :sad_meme:"
       @attachments << {title: "Note:", text: "Regardless the timer that you started was stopped :pepe:"}

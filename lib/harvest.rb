@@ -4,7 +4,7 @@ module Harvest
 
       def export_time(user, project, description, hours, task_id)
         url = URI("https://api.harvestapp.com/v2/time_entries?user_id=#{user}&project_id=#{project}&task_id=#{task_id}&spent_date=#{Time.now.strftime("%Y-%m-%d")}&hours=#{hours}&notes=#{description}")
-        request_from_harvest(url, "post")
+        request_from_harvest(url, "get")
       end
 
       private

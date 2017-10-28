@@ -18,8 +18,9 @@ class Command < ApplicationRecord
 
   private
 
-  def strip_aliases
-    command_aliases = self.aliases.gsub(" ", "").gsub(",","").split("/tp")
+  def strip_aliases(all = false, aliases = "")
+    command_aliases = self.aliases.gsub(" ", "").gsub(",","").split("/tp") if !all
+    command_aliases = aliases.gsub(" ", "").gsub(",","").split("/tp") if all
     command_aliases.shift
     command_aliases
   end
@@ -28,8 +29,7 @@ class Command < ApplicationRecord
     all_aliases = Command.pluck(:aliases)
     all_aliases.delete(nil)
     all_aliases = all_aliases.join
-    all_aliases = all_aliases.gsub(" ", "").gsub(",","").split("/tp")
-    all_aliases.shift
+    all_aliases = strip_aliases true, all_aliases
     all_aliases.uniq
   end
 
