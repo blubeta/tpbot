@@ -35,9 +35,12 @@ gem 'pry-rails'
 # Use Material Design To Make App Pretty
 gem 'material_design_lite-rails', '~> 1.3'
 
+gem 'passenger'
+
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 require 'net/http'
+require 'csv'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

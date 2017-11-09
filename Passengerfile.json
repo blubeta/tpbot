@@ -1,0 +1,6 @@
+{
+  "environment": "development",
+  "port": 8008,
+  "pid_file": "/tmp/passenger.ada.pid",
+  "log_file": "log/passenger.dev.ada.8008.log"
+}

@@ -2,7 +2,13 @@ class UserController < ApplicationController
   include ActionController::Live
 
   def index
-    @users = User.all.pluck(:first_name)
+
+  end
+
+  def report
+    respond_to do |format|
+      format.csv { send_data TargetProcess::Handler.generate_report }
+    end
   end
 
   def refresh

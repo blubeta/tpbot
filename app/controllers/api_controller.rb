@@ -104,8 +104,10 @@ class ApiController < ApplicationController
 
   def delegate_commands command, user_name = "", user_id = ""
     params = command.length > 1 ? command.drop(1) : []
+    unless command[0].downcase == "help"
       params << user_id
       params << user_name
+    end
     if !command[0]
       method("help").call()
       return
@@ -410,7 +412,7 @@ class ApiController < ApplicationController
     end
   end
 
-  def ping
+  def ping(*extra_args)
     @response_text = "pong! :pepe:"
   end
 
