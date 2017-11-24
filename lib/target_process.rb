@@ -59,7 +59,7 @@ module TargetProcess
       end
 
       def generate_report
-        url = "#{BASE_TP_URL}/Times?where=(CreateDate gte '2017-09-01')and(CreateDate lte '2017-10-31')and(Assignable is not null)&include=[User, Project, Assignable[EntityType, Name], UserStory[Name, Feature, InboundAssignables[EntityType,Name]], Spent, CreateDate]&take=1000"
+        url = "#{BASE_TP_URL}/Times?where=(Date gte '2017-11-13')and(Date lte '2017-11-19')and(Assignable is not null)&include=[User, Project, Assignable[EntityType, Name], UserStory[Name, Feature, InboundAssignables[EntityType,Name]], Spent, CreateDate]&take=1000"
         auth_token = "&access_token=#{ENV['tp_auth_token']}"
 
         response = {"Next" => url}
