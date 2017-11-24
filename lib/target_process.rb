@@ -13,7 +13,7 @@ module TargetProcess
         url = "#{BASE_TP_URL}/Assignments/?where=(GeneralUser.id eq #{id})and(Assignable.EntityState.name ne 'Done')and(Assignable.EntityType.name ne 'feature')&take=1000&include=[Assignable[EntityType, Name,EntityState]]&access_token=#{tp_auth_token}"
         response = {"Next" => url}
         while(response["Next"])
-          response = request_from_tp(URI(response["Next"]), "get")
+          response = request_from_tp(URI(response["Next"] + "&access_token=#{tp_auth_token}"), "get")
           response["Items"].each do |card|
             cards << {
               type: card["Assignable"]["ResourceType"],
@@ -30,7 +30,7 @@ module TargetProcess
         url = "#{BASE_TP_URL}/Times?where=(User.FirstName eq '#{user.downcase}')and(CreateDate gt '#{time}')&take=1000&access_token=#{tp_auth_token}"
         response = {"Next" => url}
         while(response["Next"])
-          response = request_from_tp(URI(response["Next"]), "get")
+          response = request_from_tp(URI(response["Next"] + "&access_token=#{tp_auth_token}"), "get")
           response["Items"].each do |entity|
             total += entity["Spent"]
           end
@@ -40,11 +40,11 @@ module TargetProcess
 
       def get_all_hours time, tp_auth_token
         userTimes = Hash.new(0)
-        url = "#{BASE_TP_URL}/Times?where=(CreateDate gt '#{time}')&take=100&access_token=#{tp_auth_token}"
+        url = "#{BASE_TP_URL}/Times?where=(CreateDate gt '#{time}')&take=1000&access_token=#{tp_auth_token}"
         p url
         response = {"Next" => url}
         while(response["Next"])
-          response = request_from_tp(URI(response["Next"]), "get")
+          response = request_from_tp(URI(response["Next"] + "&access_token=#{tp_auth_token}"), "get")
           response["Items"].each do |entity|
             userTimes[entity["User"]["FirstName"] + " " + entity["User"]["LastName"]] += entity["Spent"]
           end
