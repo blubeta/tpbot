@@ -19,7 +19,7 @@ module TargetProcess
               type: card["Assignable"]["ResourceType"],
               name: card["Assignable"]["Name"],
               id:   card["Assignable"]["Id"]
-             }
+            }
           end
         end
         cards
@@ -232,7 +232,7 @@ module TargetProcess
           "Remain": 0.0,
           "User": {
           	"Id": user
-           },
+          },
           "Spent": hours,
           "Description": description
         }
