@@ -58,8 +58,11 @@ module TargetProcess
         request_from_tp url, "post", payload
       end
 
-      def generate_report
-        url = "#{BASE_TP_URL}/Times?where=(Date gte '2017-11-13')and(Date lte '2017-11-19')and(Assignable is not null)&include=[User, Project, Assignable[EntityType, Name], UserStory[Name, Feature, InboundAssignables[EntityType,Name]], Spent, CreateDate]&take=1000"
+      def generate_report starting_date=nil,ending_date=nil
+        starting_date ||= (DateTime.now-1.week).at_beginning_of_week
+        ending_date   ||= starting_date.at_end_of_week
+
+        url = "#{BASE_TP_URL}/Times?where=(Date gte '#{starting_date.strftime("%Y-%m-%d")}')and(Date lte '#{ending_date.strftime("%Y-%m-%d")}')and(Assignable is not null)&include=[User, Project, Assignable[EntityType, Name], UserStory[Name, Feature, InboundAssignables[EntityType,Name]], Spent, CreateDate]&take=1000"
         auth_token = "&access_token=#{ENV['tp_auth_token']}"
 
         response = {"Next" => url}
