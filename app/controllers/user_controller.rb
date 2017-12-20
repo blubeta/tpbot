@@ -7,7 +7,7 @@ class UserController < ApplicationController
 
   def report
     respond_to do |format|
-      format.csv { send_data TargetProcess::Handler.generate_report }
+      format.zip { send_data TargetProcess::Handler.generate_report, type: 'application/zip' }
     end
   end
 

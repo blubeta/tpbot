@@ -1,3 +1,4 @@
+require 'zip'
 module TargetProcess
   class Handler
     class << self
@@ -79,7 +80,18 @@ module TargetProcess
           report[:unassigned].concat parsed_req[:unassigned]
         end
           report = clean_report(report)
-          report_to_csv(report)
+          report = report_to_csv(report)
+          final_zip = Zip::OutputStream.write_buffer(::StringIO.new('')) do |zipfile|
+            rows = report.split("\n")
+            files = rows.map { |row| row.split(',')[0] }.uniq.delete_if { |file| ["Features", "Project", "Requests", "Orphan UserStories"].include?(file) }
+
+            files.each do |file|
+              zipfile.put_next_entry "#{file} from #{starting_date.strftime("%m-%d")} to #{ending_date.strftime("%m-%d")}.csv"
+              zipfile.print rows.select { |row| [file, "Features", "Project", "Requests", "Orphan UserStories"].include?(row.split(',')[0]) }.join("\n")
+            end
+          end
+          final_zip.rewind
+          final_zip.read
       end
 
       private

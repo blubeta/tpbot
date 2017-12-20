@@ -42,6 +42,9 @@ gem 'passenger'
 require 'net/http'
 require 'csv'
 
+# Use rubyzip to compress groups of files to respond with multiple files at once
+gem 'rubyzip'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
