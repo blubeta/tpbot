@@ -11,13 +11,13 @@ module Tpbot
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
-    # if Rails.env == 'development'
-    #   config_yml = File.join(Rails.root, 'config', 'config.yml')
-    #   YAML.load(File.open(config_yml))["defaults"].each do |key,value|
-    #     ENV[key.to_s] = value
-    #     p ENV
-    #   end
-    # end
+    if Rails.env == 'development'
+      config_yml = File.join(Rails.root, 'config', 'config.yml')
+      YAML.load(File.open(config_yml))["defaults"].each do |key,value|
+        ENV[key.to_s] = value
+        p ENV
+      end
+    end
     config.allow_concurrency = true
     config.autoload_paths    << Rails.root.join('lib')
     config.eager_load_paths  += [Rails.root.join('lib').to_s]

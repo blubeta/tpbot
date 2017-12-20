@@ -64,8 +64,7 @@ module TargetProcess
 
         url = "#{BASE_TP_URL}/Times?where=(Date gte '#{starting_date.strftime("%Y-%m-%d")}')and(Date lte '#{ending_date.strftime("%Y-%m-%d")}')and(Assignable is not null)&include=[User, Project, Assignable[EntityType, Name], UserStory[Name, Feature, InboundAssignables[EntityType,Name]], Spent, CreateDate]&take=1000"
         auth_token = "&access_token=#{ENV['tp_auth_token']}"
-
-        response = {"Next" => url}
+        response = {"Next" => url }
         report = {
           features: [],
           unassigned: [],

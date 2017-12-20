@@ -21,4 +21,9 @@ Things you may want to cover:
 
 * Deployment instructions
 
-* ...
+      create a config.yml file in ./config that looks like this
+
+      defaults:
+        harvest_auth_token: "harvest_auth_token goes here"
+        slack_auth_token: "slack_auth_token goes here"
+        tp_auth_token: "tp_auth_token goes here"
