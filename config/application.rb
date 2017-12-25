@@ -18,6 +18,7 @@ module Tpbot
         p ENV
       end
     end
+
     config.allow_concurrency = true
     config.autoload_paths    << Rails.root.join('lib')
     config.eager_load_paths  += [Rails.root.join('lib').to_s]

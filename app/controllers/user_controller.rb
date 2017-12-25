@@ -1,12 +1,9 @@
 class UserController < ApplicationController
   include ActionController::Live
 
-  def index
-
-  end
-
   def report
     respond_to do |format|
+      # Slack::Messenger.send_file TargetProcess::Handler.generate_report, "zip", "report.zip", "U5VGFKHUY" #"U5PLF6FL7"
       format.zip { send_data TargetProcess::Handler.generate_report, type: 'application/zip' }
     end
   end

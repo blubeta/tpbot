@@ -79,6 +79,7 @@ module TargetProcess
           report[:requests].concat parsed_req[:requests]
           report[:unassigned].concat parsed_req[:unassigned]
         end
+
           report = clean_report(report)
           report = report_to_csv(report)
           final_zip = Zip::OutputStream.write_buffer(::StringIO.new('')) do |zipfile|
